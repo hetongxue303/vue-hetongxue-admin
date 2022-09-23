@@ -2,9 +2,18 @@ import {defineConfig} from 'vite'
 import vue from '@vitejs/plugin-vue'
 import * as path from 'path'
 import WindiCSS from 'vite-plugin-windicss'
+import {createSvgIconsPlugin} from 'vite-plugin-svg-icons'
 
 export default defineConfig({
-    plugins: [vue(), WindiCSS()],
+    plugins: [
+        vue(),
+        WindiCSS(),
+        createSvgIconsPlugin({
+            // svg图标存放路径
+            iconDirs: [path.resolve(process.cwd(), 'src/assets/icons/svg')],
+            symbolId: 'icon-[dir]-[name]'
+        })
+    ],
     resolve: {
         alias: {
             '@': path.resolve(__dirname, 'src'),
