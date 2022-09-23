@@ -9,6 +9,11 @@ const routes: Array<RouteRecordRaw> = [
         component: () => import('../views/error/404.vue')
     },
     {
+        name: 'noAuth',
+        path: '/401',
+        component: () => import('../views/error/401.vue')
+    },
+    {
         name: 'Login',
         path: '/login',
         meta: {
