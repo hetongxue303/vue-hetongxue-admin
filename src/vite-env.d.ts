@@ -5,3 +5,7 @@ declare module '*.vue' {
     const component: DefineComponent<{}, {}, any>
     export default component
 }
+
+declare module 'nprogress'
+declare module 'qs'
+declare module 'js-md5'
