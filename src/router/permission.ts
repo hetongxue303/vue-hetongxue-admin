@@ -14,15 +14,15 @@ router.beforeEach(async (to, from, next) => {
     if (getToken()) {
         // 如果访问登陆路由 则返回首页
         if (to.path === LOGIN_PATH) {
-            next({path: '/'})
-            NProgress.done()
+            next('/')
         } else {
             next()
         }
+        NProgress.done()
     } else {
         // 如果该页面需要权限 跳转登录
         if (to.meta.requireAuth) {
-            next({path: LOGIN_PATH})
+            next(LOGIN_PATH)
         } else {
             next()
         }
@@ -33,3 +33,5 @@ router.beforeEach(async (to, from, next) => {
 router.afterEach(async (to, from, failure) => {
     NProgress.done()
 })
+
+export default router

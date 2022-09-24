@@ -1,5 +1,6 @@
 <template>
   <el-button type="success" @click="handlerLogout">退出登录</el-button>
+  <router-view/>
 </template>
 
 <script setup lang="ts">
