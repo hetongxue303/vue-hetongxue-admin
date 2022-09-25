@@ -1,6 +1,20 @@
 <template>
-  <el-button type="success" @click="handlerLogout">退出登录</el-button>
-  <router-view/>
+  <el-container class="layout-parent">
+    <el-aside class="layout-aside">
+      Aside
+    </el-aside>
+    <el-container class="layout-sub">
+      <el-header class="layout-header">
+        <el-button type="success" @click="handlerLogout">退出登录</el-button>
+      </el-header>
+      <el-main class="layout-main">
+        <router-view/>
+      </el-main>
+      <el-footer class="layout-footer">
+        Footer
+      </el-footer>
+    </el-container>
+  </el-container>
 </template>
 
 <script setup lang="ts">
@@ -27,5 +41,40 @@ const handlerLogout = async () => {
 </script>
 
 <style scoped lang="scss">
+.layout-parent {
+  height: 100%;
+  width: 100%;
+  padding: 0;
+  margin: 0;
 
+  .layout-aside {
+    height: 100vh;
+    width: auto;
+  }
+
+  .layout-sub {
+    height: 100%;
+    width: 100%;
+
+    .layout-header {
+      padding: 0;
+      margin: 0;
+      height: 50px;
+      display: flex;
+      justify-content: right;
+      align-items: center;
+      border-bottom: 1px solid rgba(0, 0, 0, 0.1);
+    }
+
+    .layout-main {
+      height: 100%;
+      width: 100%;
+    }
+
+    .layout-footer {
+      height: 30px;
+      border-top: 1px solid rgba(0, 0, 0, 0.1);
+    }
+  }
+}
 </style>
