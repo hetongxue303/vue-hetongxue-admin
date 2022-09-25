@@ -1,7 +1,7 @@
 <template>
   <el-container class="layout-parent">
     <el-aside class="layout-aside">
-      Aside
+      <Sidebar :is-collapse="collapse"/>
     </el-aside>
     <el-container class="layout-sub">
       <el-header class="layout-header">
@@ -18,13 +18,19 @@
 </template>
 
 <script setup lang="ts">
+import Sidebar from './Sidebar/Index.vue'
 import {userLogout} from '../api/user/login'
 import {useUserStore} from '../store/modules/user'
 import {ElMessage} from 'element-plus'
 import {useRouter} from 'vue-router'
+import {computed} from 'vue'
 
 const userStore = useUserStore()
 const router = useRouter()
+
+const collapse = computed((): boolean => {
+  return userStore.getCollapse
+})
 
 const handlerLogout = async () => {
   const {data} = await userLogout()
@@ -50,6 +56,7 @@ const handlerLogout = async () => {
   .layout-aside {
     height: 100vh;
     width: auto;
+    padding: 0;
   }
 
   .layout-sub {

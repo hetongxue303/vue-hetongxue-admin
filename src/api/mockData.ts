@@ -24,6 +24,12 @@ export const mockData = {
         ],
         "menus": [
             {
+                "name": "首页",
+                "path": "/dashboard",
+                "icon": "user",
+                "children": []
+            },
+            {
                 "name": "系统管理",
                 "path": "/system",
                 "icon": "setting",
@@ -31,7 +37,7 @@ export const mockData = {
                     {
                         "name": "用户管理",
                         "path": "/system/user",
-                        "icon": "document",
+                        "icon": "user",
                         "children": []
                     },
                     {
