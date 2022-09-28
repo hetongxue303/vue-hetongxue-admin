@@ -1,6 +1,6 @@
 import {defineStore} from 'pinia'
 import {IMenu, IRouter} from '../types'
-import {AUTHORIZATION_KEY} from '../../../setting'
+import {getToken, removeToken} from "../../utils/auth";
 
 interface userStoreTypes {
     Authorization: string,   // token信息
@@ -13,7 +13,7 @@ interface userStoreTypes {
 export const useUserStore = defineStore('user', {
     state: (): userStoreTypes => {
         return {
-            Authorization: localStorage.getItem(AUTHORIZATION_KEY) as string,
+            Authorization: getToken() || '',
             menus: [],
             routers: [],
             collapse: false,
@@ -24,10 +24,6 @@ export const useUserStore = defineStore('user', {
         // 获取折叠面板信息
         getCollapse(state) {
             return state.collapse
-        },
-        // 获取token信息
-        getAuthorization(state) {
-            return state.Authorization
         },
         // 获取菜单列表
         getMenus(state) {
@@ -43,23 +39,13 @@ export const useUserStore = defineStore('user', {
         saveCollapse(status: boolean) {
             this.collapse = status
         },
-        // 存储token信息
-        saveAuthorization(authorization: string) {
-            localStorage.setItem(AUTHORIZATION_KEY, authorization)
-            this.Authorization = authorization
-        },
-        // 清空token信息
-        clearAuthorization() {
-            localStorage.removeItem(AUTHORIZATION_KEY)
-            this.Authorization = ''
-        },
-        // 清除相关信息
+        // 清除语言信息
         clearRelatedInfo() {
             localStorage.removeItem('language')
         },
         // 用户注销登录(清除信息)
-        userLogout() {
-            this.clearAuthorization()
+        logout() {
+            removeToken()
             this.menus = []
             this.collapse = false
         },

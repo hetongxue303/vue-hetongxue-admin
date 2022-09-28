@@ -32,10 +32,13 @@
             </el-input>
           </el-col>
           <el-col :span="9" style="display: flex;justify-content: center;align-items: center">
-            <el-image :src="imgUrl" @click="changeImageCode" style="cursor: pointer" title="点击切换验证码"/>
+            <el-image :src="imgUrl" @click="getCode" style="cursor: pointer" title="点击切换验证码"/>
           </el-col>
         </el-form-item>
       </el-row>
+      <el-form-item class="login-box-checkbox">
+        <el-checkbox v-model="loginForm.rememberMe">记住密码</el-checkbox>
+      </el-form-item>
       <el-button style="height: 30px;width: 280px" type="primary" @click="loginHandler(ruleFormRef)">
         <span v-if="loading">登 录</span>
         <span v-else>登 录 中...</span>
@@ -49,72 +52,84 @@ import {onMounted, reactive, ref, watch} from 'vue'
 import {ElMessage, FormInstance, FormRules} from 'element-plus'
 import md5 from 'js-md5'
 import {useRouter} from 'vue-router'
-import {useUserStore} from '../store/modules/user'
-import {userGetCode, userLogin} from '../api/user/login'
+import {getCodeImg, login} from '../api/login'
+import {useCookies} from '@vueuse/integrations/useCookies'
+import {decrypt, encrypt} from "../utils/jsencrypt";
+import {setToken} from "../utils/auth";
 
 const loading = ref<boolean>(true)
+let redirect = ref<string | undefined>(undefined)
+const router = useRouter()
+const cookies = useCookies()
+const ruleFormRef = ref<FormInstance>()
+const imgUrl = ref<string>('')
 
 const loginForm = reactive<any>({
   username: 'admin',
   password: '123456',
-  code: '123'
+  code: '',
+  rememberMe: false
 })
 
-const ruleFormRef = ref<FormInstance>()
 const rules = reactive<FormRules>({
-  username: [
-    {required: true, message: '账号不能为空', trigger: 'blur'},
-    {min: 4, max: 20, message: '账号长度为4到20', trigger: 'blur'}
-  ],
-  password: [
-    {required: true, message: '密码不能为空', trigger: 'blur'},
-    {min: 6, max: 50, message: '密码长度为6到50', trigger: 'blur'}
-  ],
-  code: [
-    {required: true, message: '验证码不能为空', trigger: 'blur'}
-  ]
+  username: [{required: true, message: '请输入您的账号', trigger: 'blur'}],
+  password: [{required: true, message: '请输入您的密码', trigger: 'blur'}],
+  code: [{required: true, message: '请输入验证码', trigger: 'blur'}]
 })
 
-const imgUrl = ref<string>('')
-const changeImageCode = async () => {
-  const {data} = await userGetCode()
+const getCode = async () => {
+  const {data} = await getCodeImg()
   imgUrl.value = data.data
 }
 
 watch(() => imgUrl.value, () => loginForm.code = '')
 
-const router = useRouter()
-const userStore = useUserStore()
 const loginHandler = async (formEl: FormInstance | undefined) => {
-  if (!formEl) return
-  await formEl.validate(async (valid) => {
-    if (valid) {
-      loading.value = false
-      const {data, headers} = await userLogin({
-        username: loginForm.username,
-        password: md5(md5(loginForm.password).split('').reverse().join('')),
-        code: loginForm.code
-      })
-      switch (data.code as number) {
-        case 200:
-          ElMessage.success('登陆成功')
-          userStore.saveAuthorization(headers.authorization)
-          userStore.saveRouters(data.data.routers)
-          userStore.saveMenus(data.data.menus)
-          await router.push('/dashboard');
-          break
-        default:
-          ElMessage.warning(data.message)
-          await changeImageCode()
-          loginForm.code = ''
+  if (formEl) {
+    await formEl.validate(async (valid) => {
+      if (valid) {
+        loading.value = false
+        /* if (loginForm.rememberMe) {
+           const time: Date = new Date(new Date().getTime() + COOKIE_EXPIRES + 3600000 * 24)
+           cookies.set('username', loginForm.username, {expires: time})
+           cookies.set('password', encrypt(loginForm.password), {expires: time})
+           cookies.set('rememberMe', loginForm.rememberMe, {expires: time})
+         } else {
+           cookies.remove('username')
+           cookies.remove('password')
+           cookies.remove('rememberMe')
+         }*/
+        const {data, headers} = await login({
+          username: loginForm.username,
+          password: md5(md5(loginForm.password).split('').reverse().join('')),
+          code: loginForm.code
+        });
+        switch (data.code as number) {
+          case 200:
+            ElMessage.success('登陆成功')
+            setToken(headers.authorization)
+            console.log('aa' + redirect.value)
+            await router.push('/dashboard');
+            break
+          default:
+            ElMessage.warning(data.message)
+            await getCode()
+        }
+        loading.value = true
       }
-      loading.value = true
-    }
-  })
+    })
+  }
+}
+
+const getCookie = () => {
+  loginForm.username = cookies.get("username")
+  loginForm.password = decrypt(cookies.get("password"))
+  loginForm.rememberMe = cookies.get("rememberMe")
 }
 
 onMounted(() => {
-  changeImageCode()
+  getCode()
+  //getCookie()
 })
 </script>
 
@@ -124,6 +139,10 @@ onMounted(() => {
   display: flex;
   flex-direction: column;
   align-items: center;
+
+  .login-box-checkbox {
+    margin-left: 0;
+  }
 
   .login-box-input {
     width: 280px;

@@ -3,11 +3,11 @@ import {ElMessage, ElMessageBox, ElNotification} from 'element-plus'
 import {useRouter} from 'vue-router'
 import * as nProgress from 'nprogress'
 import {getToken} from './auth'
-import {useUserStore} from "../store/modules/user";
+import {useUserStore} from '../store/modules/user'
 
 axios.create({
     baseURL: import.meta.env.VITE_BASE_URL,
-    timeout: 5000,
+    timeout: 60000,
     withCredentials: true,
     timeoutErrorMessage: '请求超时',
     headers: {
@@ -37,12 +37,12 @@ axios.interceptors.response.use(async (response: AxiosResponse) => {
     if (response.status !== 200 || response.data.code !== 200) {
         switch (response.status as number) {
             case 401:
-                ElMessage.warning(responseMsg[response.status] || '未知错误');
+                ElMessage.warning(responseMsg[response.status]);
                 const router = useRouter();
                 await router.replace('/login');
                 break
             case 403:
-                ElMessage.warning(responseMsg[response.status] || '未知错误');
+                ElMessage.warning(responseMsg[response.status]);
                 break
             // 50008:非法令牌    50012:其他客户端登录    50014:令牌过期
             case 50008 | 50012 | 50014:
@@ -52,12 +52,10 @@ axios.interceptors.response.use(async (response: AxiosResponse) => {
                     type: 'warning'
                 }).then(() => {
                     const userStore = useUserStore()
-                    userStore.userLogout()
+                    userStore.logout()
                     location.reload()
                 })
                 break
-            default:
-                ElMessage.error(response.data.message || '未知错误');
         }
     }
     nProgress.done()

@@ -9,3 +9,4 @@ declare module '*.vue' {
 declare module 'nprogress'
 declare module 'qs'
 declare module 'js-md5'
+declare module 'jsencrypt/bin/jsencrypt.min'

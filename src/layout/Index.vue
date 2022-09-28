@@ -19,7 +19,7 @@
 
 <script setup lang="ts">
 import Sidebar from './Sidebar/Index.vue'
-import {userLogout} from '../api/user/login'
+import {logout} from '../api/login'
 import {useUserStore} from '../store/modules/user'
 import {ElMessage} from 'element-plus'
 import {useRouter} from 'vue-router'
@@ -33,10 +33,10 @@ const collapse = computed((): boolean => {
 })
 
 const handlerLogout = async () => {
-  const {data} = await userLogout()
+  const {data} = await logout()
   switch (data.code as number) {
     case 200:
-      userStore.userLogout()
+      userStore.logout()
       ElMessage.success('注销成功')
       await router.push('/login')
       break
